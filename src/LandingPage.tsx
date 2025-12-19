@@ -85,8 +85,8 @@ const LandingPage = () => {
                     Roger Keys
                 </h1> */}
 
-                <div className="absolute bottom-20 right-10 md:right-20 max-w-md w-full text-right">
-                    <h2 className="text-white text-xl md:text-2xl font-light tracking-widest mb-6 uppercase drop-shadow-md">
+                <div className="w-full max-w-md absolute bottom-[10%] left-1/2 -translate-x-1/2 md:translate-x-0 md:left-auto md:right-20 md:bottom-20 md:text-right px-4">
+                    <h2 className="text-white text-xl md:text-2xl font-light tracking-widest mb-6 uppercase drop-shadow-md text-center md:text-right">
                         Sign up for updates
                     </h2>
 
@@ -107,9 +107,9 @@ const LandingPage = () => {
                                 {loading ? <Loader2 className="animate-spin" size={18} /> : 'Sign Up'}
                             </button>
                         </div>
-                        {error && <p className="text-red-200 text-sm mr-2 drop-shadow-md">{error}</p>}
+                        {error && <p className="text-red-200 text-sm mr-2 drop-shadow-md text-center md:text-right">{error}</p>}
                     </form>
-                    <div className="mt-4 flex justify-end">
+                    <div className="mt-4 flex justify-center md:justify-end">
                         <button
                             onClick={() => navigate('/store')}
                             className="text-white/80 hover:text-white text-sm uppercase tracking-widest border-b border-white/30 hover:border-white transition-all pb-0.5"
