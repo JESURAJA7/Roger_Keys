@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import Header from './components/Header';
+import { API_URL } from './config';
 
 const AdminPanel = () => {
     const [title, setTitle] = useState('');
@@ -21,7 +22,7 @@ const AdminPanel = () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch('http://localhost:5055/api/tracks', {
+            const response = await fetch(`${API_URL}/api/tracks`, {
                 method: 'POST',
                 body: formData,
             });

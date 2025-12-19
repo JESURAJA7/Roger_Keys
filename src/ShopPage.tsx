@@ -5,6 +5,7 @@ import { Music, Loader2 } from "lucide-react";
 import Header from "./components/Header";
 import KeyboardBanner from "./components/KeyboardBanner";
 import PianoKeyRow from "./components/PianoKeyRow";
+import { API_URL } from "./config";
 
 // -----------------------------
 //  MAIN COMPONENT
@@ -52,7 +53,7 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
         setSubLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5055/api/subscribe', {
+            const response = await fetch(`${API_URL}/api/subscribe`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: trimmedEmail }),
@@ -74,7 +75,7 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
     useEffect(() => {
         const fetchTracks = async () => {
             try {
-                const response = await fetch('http://localhost:5055/api/tracks');
+                const response = await fetch(`${API_URL}/api/tracks`);
                 const data = await response.json();
                 // Map API data to AudioTrack interface if needed
                 const mappedTracks = data.map((t: any) => ({

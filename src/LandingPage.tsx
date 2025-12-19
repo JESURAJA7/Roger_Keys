@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import Header from './components/Header';
+import { API_URL } from './config';
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -33,7 +34,7 @@ const LandingPage = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://localhost:5055/api/subscribe', {
+            const response = await fetch(`${API_URL}/api/subscribe`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
