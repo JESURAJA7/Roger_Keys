@@ -5,10 +5,11 @@ import { AudioTrack } from '../../types';
 interface PianoKeyRowProps {
     track: AudioTrack;
     index: number;
-    isPlaying: boolean;
-    onPlay: () => void;
-    onStop: () => void;
+    isPlaying?: boolean;
+    onPlay?: () => void;
+    onStop?: () => void;
     onDownload?: () => void;
+    fileLabel?: string;
 }
 
 const PianoKeyRow = ({
@@ -17,7 +18,8 @@ const PianoKeyRow = ({
     isPlaying,
     onPlay,
     onStop,
-    onDownload
+    onDownload,
+    fileLabel = ".au Audio File"
 }: PianoKeyRowProps) => {
     // Even index = White, Odd index = Pink
     const isWhite = index % 2 === 0;
@@ -83,7 +85,12 @@ const PianoKeyRow = ({
                 /* To look like a key, maybe add a slight bevel or side border? */
                 border-l-4 ${isWhite ? 'border-gray-200' : 'border-pink-300'}
             `}
-            onClick={() => { playClickSound(); isPlaying ? onStop() : onPlay(); }}
+            onClick={() => {
+                playClickSound();
+                if (onPlay && onStop) {
+                    isPlaying ? onStop() : onPlay();
+                }
+            }}
         >
             {/* Left Side: Icon + Title */}
             <div className="flex items-center gap-4 md:gap-6">
@@ -99,7 +106,7 @@ const PianoKeyRow = ({
                         {track.title}
                     </span>
                     <span className={`text-xs ${isWhite ? 'text-gray-500' : 'text-pink-100'}`}>
-                        .au Audio File
+                        {fileLabel}
                     </span>
                 </div>
             </div>
@@ -107,19 +114,21 @@ const PianoKeyRow = ({
             {/* Right Side: Actions */}
             <div className="flex items-center gap-4">
                 {/* PLAY / PAUSE */}
-                <button
-                    onClick={(e) => { e.stopPropagation(); playClickSound(); isPlaying ? onStop() : onPlay(); }}
-                    className={`
-                        w-12 h-12 flex items-center justify-center rounded-full
-                        transition-colors
-                        ${isWhite
-                            ? 'bg-gray-100 hover:bg-pink-500 hover:text-white text-gray-700'
-                            : 'bg-white/20 hover:bg-white hover:text-pink-500 text-white'
-                        }
-                    `}
-                >
-                    {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
-                </button>
+                {onPlay && onStop && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); playClickSound(); isPlaying ? onStop() : onPlay(); }}
+                        className={`
+                            w-12 h-12 flex items-center justify-center rounded-full
+                            transition-colors
+                            ${isWhite
+                                ? 'bg-gray-100 hover:bg-pink-500 hover:text-white text-gray-700'
+                                : 'bg-white/20 hover:bg-white hover:text-pink-500 text-white'
+                            }
+                        `}
+                    >
+                        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                    </button>
+                )}
 
                 {/* DOWNLOAD */}
                 <button

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { AudioTrack } from "../types";
-import { Music, Loader2 } from "lucide-react";
+import { Music, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import Header from "./components/Header";
 import KeyboardBanner from "./components/KeyboardBanner";
 import PianoKeyRow from "./components/PianoKeyRow";
@@ -21,6 +21,11 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
     const [tracks, setTracks] = useState<AudioTrack[]>([]);
     const [loading, setLoading] = useState(true);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const itemsPerPage = 12;
 
     // Email Subscription State
     const navigate = useNavigate();
@@ -74,16 +79,24 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
 
     useEffect(() => {
         const fetchTracks = async () => {
+            setLoading(true);
             try {
-                const response = await fetch(`${API_URL}/api/tracks`);
+                const response = await fetch(`${API_URL}/api/tracks?page=${currentPage}&limit=${itemsPerPage}`);
                 const data = await response.json();
-                // Map API data to AudioTrack interface if needed
-                const mappedTracks = data.map((t: any) => ({
+
+                // Handle paginated response
+                const trackData = data.tracks || data; // Fallback for safety if backend format differs slightly
+                const mappedTracks = trackData.map((t: any) => ({
                     id: t._id,
                     title: t.title,
                     url: t.url
                 }));
+
                 setTracks(mappedTracks);
+
+                if (data.totalPages) {
+                    setTotalPages(data.totalPages);
+                }
             } catch (err) {
                 console.error("Failed to fetch tracks", err);
             } finally {
@@ -91,7 +104,7 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
             }
         };
         fetchTracks();
-    }, []);
+    }, [currentPage]);
 
     const playTrack = (track: AudioTrack) => {
         if (currentTrackId === track.id && audioRef.current) {
@@ -115,6 +128,13 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
             audioRef.current.pause();
         }
         setCurrentTrackId(null);
+    };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     return (
@@ -169,6 +189,37 @@ export default function ShopPage({ addToHistory }: ShopPageProps) {
                         </div>
                     )}
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="mt-8 flex justify-center items-center gap-4">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className={`p-2 rounded-full transition-all ${currentPage === 1
+                                    ? 'text-gray-400 cursor-not-allowed'
+                                    : 'text-pink-600 hover:bg-pink-100 bg-white/50 shadow-sm'
+                                }`}
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+
+                        <span className="text-gray-700 font-medium px-4 py-1 bg-white/40 rounded-full border border-white/50 backdrop-blur-sm">
+                            Page {currentPage} of {totalPages}
+                        </span>
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className={`p-2 rounded-full transition-all ${currentPage === totalPages
+                                    ? 'text-gray-400 cursor-not-allowed'
+                                    : 'text-pink-600 hover:bg-pink-100 bg-white/50 shadow-sm'
+                                }`}
+                        >
+                            <ChevronRight size={24} />
+                        </button>
+                    </div>
+                )}
 
                 {/* Email Subscription Section */}
                 <div className="mt-12 bg-white/40 backdrop-blur-md rounded-2xl p-8 border border-white/50 text-center shadow-lg relative overflow-hidden">

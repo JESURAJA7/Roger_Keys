@@ -44,7 +44,7 @@ const LandingPage = () => {
 
             if (response.ok) {
                 // Success - redirect to store
-                navigate('/store');
+                navigate('/files');
             } else {
                 throw new Error('Subscription failed');
             }
@@ -111,7 +111,7 @@ const LandingPage = () => {
                     </form>
                     <div className="mt-4 flex justify-center md:justify-end">
                         <button
-                            onClick={() => navigate('/store')}
+                            onClick={() => navigate('/files')}
                             className="text-white/80 hover:text-white text-sm uppercase tracking-widest border-b border-white/30 hover:border-white transition-all pb-0.5"
                         >
                             Enter Store &gt;

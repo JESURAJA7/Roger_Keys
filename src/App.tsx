@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import FileLibrary from './filelibrary';
 import ShopPage from './ShopPage';
 import AdminPanel from './AdminPanel';
 import LandingPage from './LandingPage';
 import ContactPage from './ContactPage';
 import { AudioTrack } from '../types';
+import Footer from './components/Footer';
 
 function App() {
   const [downloadHistory, setDownloadHistory] = useState<AudioTrack[]>([]);
@@ -22,12 +23,13 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/store" element={<ShopPage addToHistory={addToHistory} />} />
+        <Route path="/store" element={<Navigate to="/files" replace />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/downloads" element={<FileLibrary history={downloadHistory} />} />
+        <Route path="/files" element={<FileLibrary history={downloadHistory} />} />
       </Routes>
+      <Footer />
     </Router>
   );
 }

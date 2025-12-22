@@ -41,11 +41,18 @@ export default function Header({ transparent, isPlaying = false }: HeaderProps) 
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
-            <button
+            {/* <button
               onClick={() => navigate('/store')}
               className={`font-medium transition ${transparent ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-pink-500'}`}
             >
               Store
+            </button> */}
+            <button
+              onClick={() => navigate('/files')}
+              className={`font-medium transition flex items-center gap-2 ${transparent ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-pink-500'}`}
+            >
+              <Download size={16} />
+              Files
             </button>
             <button
               onClick={() => navigate('/contact')}
@@ -53,13 +60,7 @@ export default function Header({ transparent, isPlaying = false }: HeaderProps) 
             >
               Contact
             </button>
-            <button
-              onClick={() => navigate('/downloads')}
-              className={`font-medium transition flex items-center gap-2 ${transparent ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-pink-500'}`}
-            >
-              <Download size={16} />
-              Downloads
-            </button>
+
             {/* <button
               onClick={() => navigate('/admin')}
               className={`font-medium transition ${transparent ? 'text-white/90 hover:text-white' : 'text-gray-700 hover:text-pink-500'}`}
@@ -69,12 +70,12 @@ export default function Header({ transparent, isPlaying = false }: HeaderProps) 
           </nav>
 
           {/* User Info Desktop */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* <div className="hidden md:flex items-center gap-6">
             <span className={`text-sm ${transparent ? 'text-white/80' : 'text-gray-700'}`}>Hi, Alice</span>
             <button className={`text-sm transition ${transparent ? 'text-white/80 hover:text-white' : 'text-gray-700 hover:text-pink-500'}`}>
               Logout
             </button>
-          </div>
+          </div> */}
 
           {/* Mobile Menu Toggle */}
           <button
@@ -93,15 +94,15 @@ export default function Header({ transparent, isPlaying = false }: HeaderProps) 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-100 p-4 flex flex-col gap-4 animate-in slide-in-from-top-2 fade-in duration-200">
-          <button onClick={() => handleMobileNav('/store')} className="text-left px-4 py-3 hover:bg-pink-50 rounded-lg text-gray-800 font-medium">
+          {/* <button onClick={() => handleMobileNav('/store')} className="text-left px-4 py-3 hover:bg-pink-50 rounded-lg text-gray-800 font-medium">
             Store
-          </button>
+          </button> */}
           <button onClick={() => handleMobileNav('/contact')} className="text-left px-4 py-3 hover:bg-pink-50 rounded-lg text-gray-800 font-medium">
             Contact
           </button>
-          <button onClick={() => handleMobileNav('/downloads')} className="flex items-center gap-2 text-left px-4 py-3 hover:bg-pink-50 rounded-lg text-gray-800 font-medium">
+          <button onClick={() => handleMobileNav('/files')} className="flex items-center gap-2 text-left px-4 py-3 hover:bg-pink-50 rounded-lg text-gray-800 font-medium">
             <Download size={18} />
-            Downloads
+            Files
           </button>
           <div className="border-t border-gray-100 my-2"></div>
           <div className="flex items-center justify-between px-4 py-2 text-gray-600">
