@@ -1,7 +1,9 @@
-import React from 'react';
+import { useState } from 'react';
 import { Youtube, Instagram, Mail } from 'lucide-react';
 
 const Footer = () => {
+    const [showEmail, setShowEmail] = useState(false);
+
     return (
         <footer className="w-full bg-gradient-to-r from-rose-100 via-purple-100 to-sky-100 bg-[length:400%_400%] animate-gradient-bg border-t border-white/50 py-8 mt-auto z-40 relative shadow-inner">
             <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -35,13 +37,33 @@ const Footer = () => {
                         <Instagram size={24} />
                     </a>
 
-                    <a
-                        href="mailto:rogerkeys@gmail.com"
-                        className="text-gray-500 hover:text-purple-600 transition-colors transform hover:scale-110"
-                        title="Contact Us"
-                    >
-                        <Mail size={24} />
-                    </a>
+                    <div className="flex items-center gap-2">
+                        {/* Interactive Email Expansion */}
+                        <div
+                            className={`
+                            flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer transition-all duration-300 ease-out
+                            ${showEmail ? 'bg-white/80 shadow-sm pr-4' : 'hover:bg-white/50'}
+                        `}
+                            onClick={() => setShowEmail(!showEmail)}
+                        >
+                            <Mail
+                                size={24}
+                                className={`transition-colors duration-300 ${showEmail ? 'text-purple-600' : 'text-gray-500 hover:text-purple-600'}`}
+                            />
+
+                            <div className={`overflow-hidden transition-all duration-300 ease-out ${showEmail ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>
+                                {showEmail && (
+                                    <a
+                                        href="mailto:psr06122000@gmail.com"
+                                        className="text-purple-600 font-medium whitespace-nowrap hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        psr06122000@gmail.com
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Optional Copyright Text - minimal */}

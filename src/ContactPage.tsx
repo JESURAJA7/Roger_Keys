@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from './components/Header';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Youtube } from 'lucide-react';
 
 const ContactPage = () => {
     return (
@@ -22,32 +22,22 @@ const ContactPage = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-900 text-lg mb-1">Email</h3>
-                                <p className="text-gray-500 mb-2">Our friendly team is here to help.</p>
-                                <a href="mailto:hello@rogerkeys.com" className="text-pink-600 font-medium hover:underline">hello@rogerkeys.com</a>
+
+                                <a href="mailto:hello@rogerkeys.com" className="text-pink-600 font-medium hover:underline">psr06122000@gmail.com</a>
                             </div>
                         </div>
 
                         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                            <div className="p-3 bg-purple-100 text-purple-600 rounded-lg">
-                                <Phone size={24} />
+                            <div className="p-3 bg-red-100 text-red-600 rounded-lg">
+                                <Youtube size={24} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-gray-900 text-lg mb-1">Phone</h3>
-                                <p className="text-gray-500 mb-2">Mon-Fri from 8am to 5pm.</p>
-                                <a href="tel:+15550000000" className="text-purple-600 font-medium hover:underline">+1 (555) 000-0000</a>
+                                <h3 className="font-bold text-gray-900 text-lg mb-1">YouTube</h3>
+                                <p className="text-gray-500 mb-2">Watch our latest Video.</p>
+                                <a href="https://youtube.com/@roger_keys?si=q5DlEH2SYsiYXCLB" target="_blank" rel="noopener noreferrer" className="text-red-600 font-medium hover:underline">@roger_keys</a>
                             </div>
                         </div>
 
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                            <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
-                                <MapPin size={24} />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 text-lg mb-1">Office</h3>
-                                <p className="text-gray-500 mb-2">Come say hello at our office HQ.</p>
-                                <p className="text-gray-800 font-medium">123 Music Lane, Suite 101<br />Los Angeles, CA 90210</p>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Contact Form */}
