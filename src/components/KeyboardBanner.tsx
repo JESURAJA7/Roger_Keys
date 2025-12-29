@@ -153,24 +153,85 @@ export default function KeyboardBannerComponent() {
     const notes = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
     const sharps = ['C#', 'D#', 'F#', 'G#', 'A#'];
 
+    // Sound Logic
+    const audioContextRef = React.useRef<AudioContext | null>(null);
+
+    const getAudioContext = () => {
+        if (!audioContextRef.current) {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextClass) {
+                audioContextRef.current = new AudioContextClass();
+            }
+        }
+        return audioContextRef.current;
+    };
+
+    const getFrequency = (octave: number, noteIndex: number, isSharps: boolean) => {
+        // Base C3 = 48 (approx 130.81Hz)
+        // This is a rough estimation for mapping: 
+        // We'll just map linearly based on what we have or do a proper calculation
+        // Let's do a simple proper MIDI calc
+        // Notes: C, C#, D, D#, E, F, F#, G, G#, A, A#, B
+        // Indices: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+
+        const noteMap: { [key: string]: number } = {
+            'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+            'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+        };
+
+        let noteName = isSharps ? sharps[noteIndex] : notes[noteIndex];
+        // Handle high C (C5)
+        if (octave === 5 && noteName === 'C') {
+            // C5
+        }
+
+        const semitone = noteMap[noteName];
+        // MIDI note for C-1 is 0. C4 is 60.
+        // C3 is 48.
+        const midi = (octave + 1) * 12 + semitone;
+        return 440 * Math.pow(2, (midi - 69) / 12);
+    };
+
+    const playNote = (octave: number, noteIndex: number, isSharps: boolean) => {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.frequency.value = getFrequency(octave, noteIndex, isSharps);
+        osc.type = 'triangle';
+
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.0);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1.0);
+    };
+
+
     const generateOctave = (octaveNum: number) => {
-        return notes.map(note => ({ note, octave: octaveNum }));
+        return notes.map((note, idx) => ({ note, octave: octaveNum, idx, isSharp: false }));
     };
 
     const whiteKeys = [
         ...generateOctave(3),
         ...generateOctave(4),
-        { note: 'C', octave: 5 }
+        { note: 'C', octave: 5, idx: 0, isSharp: false }
     ];
 
     // 0.75, 1.75 etc relative to white key index
     const blackKeyOffsets = [0.75, 1.75, 3.75, 4.75, 5.75];
 
-    const blackKeys: { note: string; offset: number }[] = [];
+    const blackKeys: { note: string; offset: number; octave: number; idx: number }[] = [];
     [3, 4].forEach((octave, octaveIdx) => {
         sharps.forEach((note, idx) => {
             const offset = (octaveIdx * 7) + blackKeyOffsets[idx];
-            blackKeys.push({ note, offset });
+            blackKeys.push({ note, offset, octave, idx });
         });
     });
 
@@ -202,6 +263,7 @@ export default function KeyboardBannerComponent() {
                     {whiteKeys.map((k, idx) => (
                         <div
                             key={`${k.note}${k.octave}-${idx}`}
+                            onMouseDown={() => playNote(k.octave, k.idx, false)}
                             className="
                                 relative w-10 md:w-12 h-24 md:h-32
                                 bg-gradient-to-b from-white to-gray-50 
@@ -223,6 +285,7 @@ export default function KeyboardBannerComponent() {
                     {blackKeys.map((k, idx) => (
                         <div
                             key={`black-${idx}`}
+                            onMouseDown={() => playNote(k.octave, k.idx, true)}
                             className="
                                 absolute w-6 md:w-8 h-16 md:h-20
                                 bg-gradient-to-b from-gray-800 to-black 

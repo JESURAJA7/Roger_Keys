@@ -36,6 +36,59 @@ const PIANO_KEYS = generateKeys();
 // ---------------------------------------------------------------------------
 export default function RealisticKeyboard() {
     const [activeIndices, setActiveIndices] = useState<number[]>([]);
+    const audioContextRef = useRef<AudioContext | null>(null);
+
+    // Initialize AudioContext lazily
+    const getAudioContext = () => {
+        if (!audioContextRef.current) {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextClass) {
+                audioContextRef.current = new AudioContextClass();
+            }
+        }
+        return audioContextRef.current;
+    };
+
+    // Calculate frequency for a note index (starting from C3)
+    const getFrequency = (index: number) => {
+        // A4 is 440Hz. C3 is MIDI note 48.
+        const midiNote = 48 + index;
+        return 440 * Math.pow(2, (midiNote - 69) / 12);
+    };
+
+    const playNote = (index: number) => {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        // Ensure context is running
+        if (ctx.state === 'suspended') {
+            ctx.resume().catch(err => console.error("Audio resume failed", err));
+        }
+
+        try {
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(getFrequency(index), ctx.currentTime);
+
+            // Envelope
+            // Start at 0, quick attack to 0.5, then decay
+            // We use setTargetAtTime for smoother envelopes sometimes, but ramp is fine
+            const t = ctx.currentTime;
+            gainNode.gain.setValueAtTime(0, t);
+            gainNode.gain.linearRampToValueAtTime(0.3, t + 0.05); // Standardized attack
+            gainNode.gain.exponentialRampToValueAtTime(0.01, t + 0.5); // Decay
+
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+
+            osc.start(t);
+            osc.stop(t + 0.5);
+        } catch (e) {
+            console.error("Audio playback error", e);
+        }
+    };
 
     // Auto-play Animation Loop
     useEffect(() => {
@@ -48,16 +101,24 @@ export default function RealisticKeyboard() {
             }
 
             setActiveIndices(newIndices);
+            // NOTE: We do NOT play sound for auto-play to avoid annoyance/policy issues
 
             // Release after short delay
             setTimeout(() => setActiveIndices([]), 300);
 
-        }, 2000); // Slower rhythm to allow user interaction to shine
+        }, 2000); // Slower rhythm
 
         return () => clearInterval(interval);
     }, []);
 
     const handleKeyClick = (index: number) => {
+        // User interaction - perfect time to resume audio context if needed
+        const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume();
+        }
+
+        playNote(index);
         setActiveIndices([index]);
         setTimeout(() => setActiveIndices([]), 300);
     };

@@ -4,7 +4,7 @@ import Header from './components/Header';
 import KeyboardBanner from "./components/KeyboardBanner";
 import PianoKeyRow from "./components/PianoKeyRow";
 import { API_URL } from './config';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw } from 'lucide-react';
 
 interface FileLibraryProps {
   history: AudioTrack[];
@@ -23,44 +23,49 @@ export default function FileLibrary({ history }: FileLibraryProps) {
   const [folders, setFolders] = useState<LocalFolder[]>([]);
   const [files, setFiles] = useState<string[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start true to show loader on mount
   const itemsPerPage = 12;
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let url = `${API_URL}/api/local-files?page=${currentPage}&limit=${itemsPerPage}`;
+
+      if (selectedFolder) {
+        // Fetch Files
+        url += `&mode=files&folderName=${encodeURIComponent(selectedFolder)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch files");
+        const data = await res.json();
+        setFiles(data.files || []);
+        setTotalPages(data.totalPages || 1);
+      } else {
+        // Fetch Folders
+        url += `&mode=folders`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch folders");
+        const data = await res.json();
+        setFolders(data.folders || []);
+        setTotalPages(data.totalPages || 1);
+      }
+    } catch (err: any) {
+      console.error("Failed to load data", err);
+      setError(err.message || "Failed to load content");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch Folders or Files based on state
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        let url = `${API_URL}/api/local-files?page=${currentPage}&limit=${itemsPerPage}`;
-
-        if (selectedFolder) {
-          // Fetch Files
-          url += `&mode=files&folderName=${encodeURIComponent(selectedFolder)}`;
-          const res = await fetch(url);
-          const data = await res.json();
-          setFiles(data.files || []);
-          setTotalPages(data.totalPages || 1);
-        } else {
-          // Fetch Folders
-          url += `&mode=folders`;
-          const res = await fetch(url);
-          const data = await res.json();
-          setFolders(data.folders || []);
-          setTotalPages(data.totalPages || 1);
-        }
-      } catch (err) {
-        console.error("Failed to load data", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, [currentPage, selectedFolder]);
 
@@ -81,6 +86,10 @@ export default function FileLibrary({ history }: FileLibraryProps) {
       setCurrentPage(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const handleRetry = () => {
+    fetchData();
   };
 
   const playTrack = (track: AudioTrack) => {
@@ -142,7 +151,7 @@ export default function FileLibrary({ history }: FileLibraryProps) {
 
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-2 drop-shadow-sm">
-            {selectedFolder ? selectedFolder : "Audio Collection"}
+            {selectedFolder ? selectedFolder : "Style Collection"}
           </h1>
           <p className="text-gray-600">
             {selectedFolder ? "Select a track to play" : "Browse your local audio folders"}
@@ -150,7 +159,22 @@ export default function FileLibrary({ history }: FileLibraryProps) {
         </div>
 
         {/* Content Area */}
-        {selectedFolder ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center p-20 min-h-[300px]">
+            <Loader2 size={48} className="text-pink-500 animate-spin mb-4" />
+            <p className="text-gray-500 text-lg animate-pulse">Loading Collection...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center p-20 min-h-[300px] bg-white/30 backdrop-blur-md rounded-2xl border border-red-200">
+            <p className="text-red-500 text-lg mb-4">{error}</p>
+            <button
+              onClick={handleRetry}
+              className="flex items-center gap-2 px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full transition-all"
+            >
+              <RefreshCcw size={18} /> Retry
+            </button>
+          </div>
+        ) : selectedFolder ? (
           <div className="flex flex-col gap-4">
             <button
               onClick={handleBackToFolders}
@@ -160,9 +184,7 @@ export default function FileLibrary({ history }: FileLibraryProps) {
             </button>
 
             <div className="flex flex-col shadow-2xl rounded-2xl overflow-hidden bg-white/30 backdrop-blur-sm border border-white/50">
-              {loading ? (
-                <div className="p-10 text-center text-gray-500">Loading files...</div>
-              ) : tracks.length > 0 ? (
+              {tracks.length > 0 ? (
                 tracks.map((track, idx) => (
                   <PianoKeyRow
                     key={track.id}
@@ -180,9 +202,7 @@ export default function FileLibrary({ history }: FileLibraryProps) {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading ? (
-              <div className="col-span-full text-center text-gray-500 py-10">Loading folders...</div>
-            ) : folders.length > 0 ? (
+            {folders.length > 0 ? (
               folders.map((folder) => (
                 <div
                   key={folder.name}
@@ -203,7 +223,7 @@ export default function FileLibrary({ history }: FileLibraryProps) {
         )}
 
         {/* Pagination Controls */}
-        {totalPages > 1 && (
+        {!loading && !error && totalPages > 1 && (
           <div className="mt-8 flex justify-center items-center gap-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
