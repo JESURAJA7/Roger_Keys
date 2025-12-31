@@ -185,6 +185,11 @@ app.post('/api/tracks', upload.single('file'), async (req, res) => {
     }
 });
 
+//Health Check
+app.get('/api/health', (req, res) => {
+    res.json({ message: 'Server is running' });
+});
+
 // MongoDB Connection
 const PORT = process.env.PORT || 5055;
 mongoose
